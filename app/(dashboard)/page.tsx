@@ -4,7 +4,7 @@ export default function Page() {
   return (
     <>
       <UserButton afterSignOutUrl="/"></UserButton>
-      <p>this is authenticate user</p>
+      <p>Dashboard Page</p>
     </>
   );
 }
