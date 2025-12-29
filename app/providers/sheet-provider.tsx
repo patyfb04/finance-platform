@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { NewAccountSheet } from "../features/accounts/components/new-account-sheet";
+import { EditAccountSheet } from "../features/accounts/components/edit-account";
+import { Edit } from "lucide-react";
 
 export const SheetProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,6 +18,7 @@ export const SheetProvider = () => {
   return (
     <>
       <NewAccountSheet></NewAccountSheet>
+      <EditAccountSheet></EditAccountSheet>
     </>
   );
 };
