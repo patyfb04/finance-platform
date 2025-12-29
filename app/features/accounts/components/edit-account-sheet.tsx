@@ -14,6 +14,7 @@ import z from "zod";
 import { useGetAccount } from "../api/use-get-account";
 import { Loader2 } from "lucide-react";
 import { useEditAccount } from "../api/use-edit-account";
+import { useDeleteAccount } from "../api/use-delete-account";
 
 const formSchema = insertAccountSchema.pick({
   name: true,
@@ -24,13 +25,15 @@ type FormValues = z.input<typeof formSchema>;
 export const EditAccountSheet = () => {
   const { isOpen, onOpen, onClose, id } = useOpenAccount();
 
-  const accountQuery = useGetAccount(id);
-  const mutation = useEditAccount(id);
+  const accountQuery = useGetAccount(id, { enabled: isOpen && !!id });
+  const editMutation = useEditAccount(id);
+  const deleteMutation = useDeleteAccount(id);
 
+  const isPending = editMutation.isPending || deleteMutation.isPending;
   const isLoading = accountQuery.isLoading;
 
   const onSubmit = (values: FormValues) => {
-    mutation.mutate(values, {
+    editMutation.mutate(values, {
       onSuccess: () => {
         onClose();
       },
@@ -69,7 +72,8 @@ export const EditAccountSheet = () => {
           <AccountForm
             id={id}
             onSubmit={onSubmit}
-            disabled={mutation.isPending}
+            onDelete={() => deleteMutation.mutate()}
+            disabled={isPending}
             defaultValues={defaultValues}
           />
         )}
