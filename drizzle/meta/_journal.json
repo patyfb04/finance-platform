@@ -15,6 +15,13 @@
       "when": 1766890494191,
       "tag": "0001_harsh_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767038901752,
+      "tag": "0002_simple_winter_soldier",
+      "breakpoints": true
     }
   ]
 }

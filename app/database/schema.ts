@@ -11,14 +11,20 @@ export const accounts = pgTable("accounts", {
 
 export const insertAccountSchema = createInsertSchema(accounts);
 
+export const categories = pgTable("categories", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  userId: text("user_id").notNull(),
+  plaidId: text("plaid_id").default(""),
+});
+
+export const insertCategorySchema = createInsertSchema(categories);
+
 // export const transactions = pgTable("transactions", {
 //   id: serial("id").primaryKey(),
 //   amount: text("amount").notNull(),
 // });
-// export const categories = pgTable("categories", {
-//   id: serial("id").primaryKey(),
-//   name: text("name").notNull(),
-// });
+
 // export const users = pgTable("users", {
 //   id: text("id").primaryKey(),
 //   email: text("email").notNull(),
