@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/hono";
 
-export const useGetAccount = (id?: string, options?: { enabled?: boolean }) => {
+export const useGetTransaction = (
+  id?: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     enabled: options?.enabled ?? !!id,
-    queryKey: ["accounts", { id }],
+    queryKey: ["transactions", { id }],
     queryFn: async () => {
-      const response = await client.api.accounts[":id"].$get({
+      const response = await client.api.transactions[":id"].$get({
         param: { id },
       });
 
@@ -15,11 +18,11 @@ export const useGetAccount = (id?: string, options?: { enabled?: boolean }) => {
       }
 
       if (!response.ok) {
-        throw new Error("Failed to fetch accounts");
+        throw new Error("Failed to fetch transactions");
       }
 
       const { data } = await response.json();
-      return data ?? [];
+      return data ?? null;
     },
   });
 };

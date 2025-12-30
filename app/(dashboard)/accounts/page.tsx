@@ -1,7 +1,7 @@
 "use client";
 
 import { useNewAccount } from "@/app/features/accounts/hooks/use-new-account";
-import { useBulkDeleteAccounts } from "@/app/features/accounts/api/use-bulk-delete";
+import { useBulkDeleteAccounts } from "@/app/features/accounts/api/use-bulk-delete-accounts";
 import { useGetAccounts } from "@/app/features/accounts/api/use-get-accounts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
