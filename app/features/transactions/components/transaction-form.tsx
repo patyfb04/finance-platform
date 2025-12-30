@@ -29,8 +29,8 @@ type Props = {
   disabled?: boolean;
   accountOptions: { label: string; value: string }[];
   categoryOptions: { label: string; value: string }[];
-  onCreateAccount: (name: string) => void;
-  onCreateCategory: (name: string) => void;
+  onCreateAccount: (name?: string) => void;
+  onCreateCategory: (name?: string) => void;
 };
 
 export const TransactionForm = ({
@@ -75,18 +75,37 @@ export const TransactionForm = ({
                   options={accountOptions}
                   onCreate={onCreateAccount}
                   value={field.value}
-                  onChange={field.onChange()}
+                  onChange={field.onChange}
                   disabled={disabled}
                 ></Select>
-                {/* <Input
-                  disabled={disabled}
-                  placeholder="e.g. Cash, Bank, Credit"
-                  {...field}
-                ></Input> */}
               </FormControl>
             </FormItem>
           )}
         />
+        <FormField
+          name="categoryId"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <Select
+                  placeholder="Select a category"
+                  options={categoryOptions}
+                  onCreate={onCreateCategory}
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={disabled}
+                ></Select>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* <Input
+                  disabled={disabled}
+                  placeholder="e.g. Cash, Bank, Credit"
+                  {...field}
+                ></Input> */}
         <Button className="w-full" disabled={disabled}>
           {id ? "Save Changes" : "Create Transaction"}
         </Button>
