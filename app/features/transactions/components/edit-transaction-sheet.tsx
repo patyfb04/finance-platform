@@ -76,7 +76,6 @@ export const EditTransactionSheet = () => {
     accountQuery.isLoading;
 
   const onSubmit = (values: FormValues) => {
-    console.log(values);
     editMutation.mutate(values, {
       onSuccess: () => {
         onClose();
