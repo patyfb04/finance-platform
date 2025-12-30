@@ -238,16 +238,12 @@ const app = new Hono()
     zValidator(
       "param",
       z.object({
-        id: z.string().optional(),
+        id: z.string(),
       })
     ),
     async (c) => {
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
-
-      if (!id) {
-        return c.json({ error: "Missing Id" }, 400);
-      }
 
       if (!auth?.userId) {
         throw new HTTPException(401, {
@@ -255,26 +251,35 @@ const app = new Hono()
         });
       }
 
-      const transactionsToDelete = db.$with("transactions_to_delete").as(
-        db
-          .select({ id: transactions.id })
-          .from(transactions)
-          .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-          .where(and(eq(accounts.userId, auth.userId)))
-      );
+      try {
+        const [data] = await db
+          .delete(transactions)
+          .where(
+            and(
+              eq(transactions.id, id),
+              inArray(
+                transactions.accountId,
+                db
+                  .select({ id: accounts.id })
+                  .from(accounts)
+                  .where(eq(accounts.userId, auth.userId))
+              )
+            )
+          )
+          .returning({ id: transactions.id });
 
-      const [data] = await db
-        .with(transactionsToDelete)
-        .delete(transactions)
-        .where(
-          inArray(transactions.id, sql`select id from ${transactionsToDelete}`)
-        )
-        .returning({ id: transactions.id });
+        if (!data) {
+          return c.json({ error: "Not Found" }, 404);
+        }
 
-      if (!data) {
-        return c.json({ error: "Not Found" }, 404);
+        return c.json({ data });
+      } catch (err) {
+        console.error("DELETE /transactions/:id ERROR:", err);
+        return c.json(
+          { error: "Internal Server Error", details: String(err) },
+          500
+        );
       }
-      return c.json({ data });
     }
   )
   .post(
