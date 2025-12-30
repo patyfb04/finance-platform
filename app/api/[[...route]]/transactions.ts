@@ -57,6 +57,7 @@ const app = new Hono()
           account: accounts.name,
           accountId: transactions.accountId,
           date: transactions.date,
+          notes: transactions.notes,
         })
         .from(transactions)
         .innerJoin(accounts, eq(transactions.accountId, accounts.id))
@@ -104,6 +105,7 @@ const app = new Hono()
           amount: transactions.amount,
           accountId: transactions.accountId,
           date: transactions.date,
+          notes: transactions.notes,
         })
         .from(transactions)
         .innerJoin(accounts, eq(transactions.accountId, accounts.id))
@@ -182,18 +184,17 @@ const app = new Hono()
     zValidator(
       "param",
       z.object({
-        id: z.string().optional(),
+        id: z.string(), // must be required
       })
     ),
-    zValidator("json", insertTransactionSchema.omit({ id: true })),
+    zValidator(
+      "json",
+      insertTransactionSchema.omit({ id: true }).partial() // PATCH should allow partial updates
+    ),
     async (c) => {
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
       const values = c.req.valid("json");
-
-      if (!id) {
-        return c.json({ error: "Missing Id" }, 400);
-      }
 
       if (!auth?.userId) {
         throw new HTTPException(401, {
@@ -201,26 +202,33 @@ const app = new Hono()
         });
       }
 
-      const transactionsToUpdate = db.$with("transactions_to_update").as(
-        db
-          .select({ id: transactions.id })
-          .from(transactions)
-          .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-          .where(and(eq(accounts.userId, auth.userId)))
+      // Filter out undefined fields so Drizzle doesn't try to set them
+      const cleanedValues = Object.fromEntries(
+        Object.entries(values).filter(([_, v]) => v !== undefined)
       );
 
+      // Update only if the transaction belongs to an account owned by the user
       const [data] = await db
-        .with(transactionsToUpdate)
         .update(transactions)
-        .set(values)
+        .set(cleanedValues)
         .where(
-          inArray(transactions.id, sql`select id from ${transactionsToUpdate}`)
+          and(
+            eq(transactions.id, id),
+            inArray(
+              transactions.accountId,
+              db
+                .select({ id: accounts.id })
+                .from(accounts)
+                .where(eq(accounts.userId, auth.userId))
+            )
+          )
         )
         .returning();
 
       if (!data) {
         return c.json({ error: "Not Found" }, 404);
       }
+
       return c.json({ data });
     }
   )

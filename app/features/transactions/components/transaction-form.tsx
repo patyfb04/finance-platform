@@ -17,6 +17,7 @@ import {
 import { Select } from "@/components/select";
 import { DatePicker } from "@/components/date-picker";
 import { AmountInput } from "@/components/amount-input";
+import { convertAmountToMiliunits } from "@/lib/utils";
 
 const formSchema = insertTransactionSchema.omit({
   id: true,
@@ -53,8 +54,9 @@ export const TransactionForm = ({
   });
 
   const handleSubmit = (values: FormValues) => {
-    console.log(values);
-    onSubmit(values);
+    const amount = parseFloat(values.amount);
+    //const amountToMiliunits = convertAmountToMiliunits(amount);
+    onSubmit({ ...values, amount: amount.toString() });
   };
 
   const handleDelete = () => {
@@ -127,9 +129,10 @@ export const TransactionForm = ({
               <FormLabel>Payee</FormLabel>
               <FormControl>
                 <Input
+                  {...field}
+                  value={field.value ?? ""}
                   disabled={disabled}
                   placeholder="Add a payee"
-                  {...field}
                 ></Input>
               </FormControl>
             </FormItem>

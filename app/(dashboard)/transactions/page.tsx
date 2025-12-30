@@ -53,16 +53,16 @@ const TransactionsPage = () => {
           </Button>
         </CardHeader>
         <CardContent>
-          {/* <DataTable
+          <DataTable
             columns={columns}
             data={transactions}
-            filterKey="name"
+            filterKey="payee"
             onDelete={(row) => {
               const ids = row.map((r) => r.original.id);
               deleteTransactions.mutate({ ids });
             }}
             disabled={isDisabled}
-          /> */}
+          />
         </CardContent>
       </Card>
     </div>
