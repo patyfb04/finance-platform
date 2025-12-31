@@ -30,7 +30,6 @@ export const TableHeadSelect = ({
           currectSelect && "text-blue-500"
         )}
       >
-        {" "}
         <SelectValue placeholder="Skip"></SelectValue>
       </SelectTrigger>
       <SelectContent>
