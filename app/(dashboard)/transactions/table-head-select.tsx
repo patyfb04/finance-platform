@@ -54,4 +54,4 @@ export const TableHeadSelect = ({
   );
 };
 
-const options = ["amount", "payee", "notes", "date"];
+const options = ["amount", "payee", "date"];
