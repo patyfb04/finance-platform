@@ -63,14 +63,3 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 export const insertTransactionSchema = createInsertSchema(transactions, {
   date: z.coerce.date(),
 });
-
-// export const users = pgTable("users", {
-//   id: text("id").primaryKey(),
-//   email: text("email").notNull(),
-//   created_at: timestamp("created_at").defaultNow().notNull(),
-// });
-// export const settings = pgTable("settings", {
-//   id: serial("id").primaryKey(),
-//   userId: text("user_id").notNull(),
-//   theme: text("theme").notNull(),
-// });
