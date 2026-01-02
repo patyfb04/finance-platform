@@ -82,6 +82,8 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
       date: format(parse(item.date, dateFormat, new Date()), outputFormat),
       test: item.amount.trim(),
     }));
+
+    onSubmit(formattedData);
   };
 
   return (
