@@ -5,16 +5,46 @@ import {
   insertTransactionSchema,
   categories,
   accounts,
+  bulkCreateInputSchema,
 } from "@/app/database/schema";
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import { HTTPException } from "hono/http-exception";
 import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
 import { createId } from "@paralleldrive/cuid2";
-import { z } from "zod";
-import { parse, subDays } from "date-fns";
+import { array, z } from "zod";
+import { endOfDay, parse, startOfDay, subDays } from "date-fns";
 
 const app = new Hono()
+  .post(
+    "/bulk-create",
+    clerkMiddleware(),
+    zValidator("json", bulkCreateInputSchema),
+    async (c) => {
+      console.log("---- /transactions BULK CREATE START ----");
+
+      const auth = getAuth(c);
+      if (!auth?.userId) {
+        throw new HTTPException(401, {
+          res: c.json({ error: "unauthorized" }, 401),
+        });
+      }
+      const raw = c.req.valid("json");
+
+      const normalized = raw.map((v) => ({
+        id: createId(),
+        payee: v.payee,
+        accountId: v.accountId,
+        amount: v.amount.toString(),
+        date: new Date(v.date + "T00:00:00"),
+        categoryId: v.categoryId || null,
+        notes: v.notes ?? null,
+      }));
+
+      const data = await db.insert(transactions).values(normalized).returning();
+      return c.json({ data });
+    }
+  )
   .get(
     "/",
     zValidator(
@@ -27,6 +57,7 @@ const app = new Hono()
     ),
     clerkMiddleware(),
     async (c) => {
+      console.log("---- /transactions GET START ----");
       const { from, to, accountId } = c.req.valid("query");
 
       const auth = getAuth(c);
@@ -37,15 +68,15 @@ const app = new Hono()
       }
 
       const defaultTo = new Date();
-      const defaultFrom = subDays(defaultTo, 30);
+      const defaultFrom = subDays(defaultTo, 120);
 
-      const startDate = (
-        from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom
-      ) as Date;
+      const startDate = from
+        ? startOfDay(parse(from, "yyyy-MM-dd", new Date()))
+        : startOfDay(defaultFrom);
 
-      const endDate = (
-        to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo
-      ) as Date;
+      const endDate = to
+        ? endOfDay(parse(to, "yyyy-MM-dd", new Date()))
+        : endOfDay(defaultTo);
 
       const data = await db
         .select({
@@ -71,6 +102,7 @@ const app = new Hono()
           )
         )
         .orderBy(desc(transactions.date));
+
       return c.json({ data });
     }
   )
@@ -119,6 +151,7 @@ const app = new Hono()
     clerkMiddleware(),
     zValidator("json", insertTransactionSchema.omit({ id: true })),
     async (c) => {
+      console.log("---- /transactions CREATE TRANSACTION START ----");
       const auth = getAuth(c);
       const values = c.req.valid("json");
 
@@ -135,45 +168,6 @@ const app = new Hono()
           ...values,
         })
         .returning();
-      return c.json({ data });
-    }
-  )
-  .post(
-    "/bulk-delete",
-    clerkMiddleware(),
-    zValidator("json", z.object({ ids: z.array(z.string()) })),
-    async (c) => {
-      const auth = getAuth(c);
-      const values = c.req.valid("json");
-
-      if (!auth?.userId) {
-        throw new HTTPException(401, {
-          res: c.json({ error: "unauthorized" }, 401),
-        });
-      }
-
-      const transactionsToDelete = db.$with("transactions_to_delete").as(
-        db
-          .select({ id: transactions.id })
-          .from(transactions)
-          .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-          .where(
-            and(
-              inArray(transactions.id, values.ids),
-              eq(accounts.userId, auth.userId)
-            )
-          )
-      );
-
-      const [data] = await db
-        .with(transactionsToDelete)
-        .delete(transactions)
-        .where(
-          inArray(transactions.id, sql`select id from ${transactionsToDelete}`)
-        )
-        .returning({
-          id: transactions.id,
-        });
 
       return c.json({ data });
     }
@@ -192,6 +186,7 @@ const app = new Hono()
       insertTransactionSchema.omit({ id: true }).partial() // PATCH should allow partial updates
     ),
     async (c) => {
+      console.log("---- /transactions UPDATE TRANSACTION START ----");
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
       const values = c.req.valid("json");
@@ -242,6 +237,7 @@ const app = new Hono()
       })
     ),
     async (c) => {
+      console.log("---- /transactions DELETE TRANSACTION START ----");
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
 
@@ -281,33 +277,5 @@ const app = new Hono()
         );
       }
     }
-  )
-  .post(
-    "/bulk-create",
-    zValidator("json", z.array(insertTransactionSchema.omit({ id: true }))),
-    clerkMiddleware(),
-    async (c) => {
-      const auth = getAuth(c);
-      const values = c.req.valid("json");
-
-      if (!auth?.userId) {
-        throw new HTTPException(401, {
-          res: c.json({ error: "unauthorized" }, 401),
-        });
-      }
-
-      const data = await db
-        .insert(transactions)
-        .values(
-          values.map((value) => ({
-            id: createId(),
-            ...value,
-          }))
-        )
-        .returning();
-
-      return c.json({ data });
-    }
   );
-
 export default app;

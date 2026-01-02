@@ -42,11 +42,9 @@ export const transactions = pgTable("transactions", {
       onDelete: "cascade",
     })
     .notNull(),
-  categoryId: text("category_id")
-    .references(() => categories.id, {
-      onDelete: "set null",
-    })
-    .notNull(),
+  categoryId: text("category_id").references(() => categories.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
@@ -62,4 +60,17 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
   date: z.coerce.date(),
+  categoryId: z.string().nullable().optional(),
+  amount: z.coerce.string(),
 });
+
+export const bulkCreateInputSchema = z.array(
+  z.object({
+    date: z.string(), // raw string
+    payee: z.string(),
+    amount: z.string(), // raw string
+    accountId: z.string(),
+    categoryId: z.string().optional(), // empty string allowed
+    notes: z.string().optional(),
+  })
+);

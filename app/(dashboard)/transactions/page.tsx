@@ -61,6 +61,12 @@ const TransactionsPage = () => {
     const data = values.map((value) => ({
       ...value,
       accountId: accountId as string,
+      date:
+        value.date instanceof Date
+          ? value.date.toISOString().split("T")[0] // "YYYY-MM-DD"
+          : value.date,
+      categoryId: value.categoryId ?? undefined,
+      notes: value.notes ?? undefined,
     }));
 
     createTransactions.mutate(data, {
