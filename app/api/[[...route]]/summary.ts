@@ -1,6 +1,6 @@
 import { db } from "@/app/database/drizzle";
 import { accounts, categories, transactions } from "@/app/database/schema";
-import { calculatePercentageChange } from "@/lib/utils";
+import { calculatePercentageChange, fillMissingDays } from "@/lib/utils";
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
 import { differenceInDays, parse, subDays } from "date-fns";
@@ -160,13 +160,45 @@ const app = new Hono().get(
       finalCategories.push({ name: "Others", value: otherSum });
     }
 
+    const activeDays = await db
+      .select({
+        date: transactions.date,
+        income:
+          sql`SUM(CASE WHEN ${transactions.amount}::numeric >= 0 THEN ${transactions.amount}::numeric ELSE 0 END)`.mapWith(
+            Number
+          ),
+        expenses:
+          sql`SUM(CASE WHEN ${transactions.amount}::numeric < 0 THEN ${transactions.amount}::numeric ELSE 0 END)`.mapWith(
+            Number
+          ),
+      })
+      .from(transactions)
+      .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+      .where(
+        and(
+          eq(accounts.userId, auth.userId),
+          lt(transactions.amount, "0"),
+          gte(transactions.date, startDate),
+          lte(transactions.date, endDate),
+          accountId ? eq(transactions.accountId, accountId) : undefined
+        )
+      )
+      .groupBy(transactions.date)
+      .orderBy(transactions.date);
+
+    const days = fillMissingDays(activeDays, startDate, endDate);
+
     return c.json({
-      currentPeriod,
-      lastPeriod,
-      incomeChange,
-      expensesChange,
-      remainingChange,
-      finalCategories,
+      data: {
+        remainingAmount: current.remaining,
+        remainingChange,
+        incomeAmount: current.income,
+        incomeChange,
+        expensesAmount: current.expenses,
+        expensesChange,
+        categories: finalCategories,
+        days,
+      },
     });
   }
 );
