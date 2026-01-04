@@ -168,7 +168,7 @@ const app = new Hono().get(
             Number
           ),
         expenses:
-          sql`SUM(CASE WHEN ${transactions.amount}::numeric < 0 THEN ${transactions.amount}::numeric ELSE 0 END)`.mapWith(
+          sql`SUM(CASE WHEN ${transactions.amount}::numeric < 0 THEN ABS(${transactions.amount}::numeric) ELSE 0 END)`.mapWith(
             Number
           ),
       })
@@ -177,7 +177,6 @@ const app = new Hono().get(
       .where(
         and(
           eq(accounts.userId, auth.userId),
-          lt(transactions.amount, "0"),
           gte(transactions.date, startDate),
           lte(transactions.date, endDate),
           accountId ? eq(transactions.accountId, accountId) : undefined
@@ -187,6 +186,8 @@ const app = new Hono().get(
       .orderBy(transactions.date);
 
     const days = fillMissingDays(activeDays, startDate, endDate);
+
+    console.log(days);
 
     return c.json({
       data: {

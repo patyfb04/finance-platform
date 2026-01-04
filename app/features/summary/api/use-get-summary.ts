@@ -23,7 +23,6 @@ export const useGetSummary = () => {
       }
 
       const { data } = await response.json();
-
       return data;
     },
   });

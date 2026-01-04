@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import {
   Tooltip,
   XAxis,
+  YAxis,
   AreaChart,
   Area,
   ResponsiveContainer,
@@ -17,10 +18,14 @@ type Props = {
 };
 
 export const AreaVariant = ({ data }: Props) => {
-  console.log("Summary Data:", data);
+  const formattedData = data.map((item) => ({
+    ...item,
+    date: new Date(item.date),
+  }));
+
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <AreaChart data={data}>
+      <AreaChart data={formattedData}>
         <defs>
           <linearGradient id="income" x1="0" y1="0" x2="0" y2="1">
             <stop offset="2%" stopColor="#3D82F6" stopOpacity={0.8} />
@@ -44,9 +49,11 @@ export const AreaVariant = ({ data }: Props) => {
         <Area
           type="monotone"
           dataKey="income"
+          strokeWidth={2}
           stroke="#3D82F6"
           fillOpacity={1}
           fill="url(#income)"
+          className="drop-shadow-sm"
         />
         <Area
           type="monotone"
@@ -54,6 +61,7 @@ export const AreaVariant = ({ data }: Props) => {
           stroke="#f43f5e"
           fillOpacity={1}
           fill="url(#expenses)"
+          className="drop-shadow-sm"
         />
       </AreaChart>
     </ResponsiveContainer>
