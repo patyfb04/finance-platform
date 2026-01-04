@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNewAccount } from "@/app/features/accounts/hooks/use-new-account";
 import { DataGrid } from "@/components/data-grid";
+import { DataCharts } from "@/components/data-charts";
 
 export default function Home() {
   const { data: accounts, isLoading } = useGetAccounts();
@@ -16,6 +17,7 @@ export default function Home() {
       ) : (
         <div className="max-w-full-2xl mx-auto w-full pb-10 -mt-24">
           <DataGrid />
+          <DataCharts />
         </div>
       )}
     </>
