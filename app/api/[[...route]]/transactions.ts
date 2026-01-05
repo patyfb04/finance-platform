@@ -277,5 +277,37 @@ const app = new Hono()
         );
       }
     }
+  )
+  .post(
+    "/bulk-delete",
+    clerkMiddleware(),
+    zValidator("json", z.object({ ids: z.array(z.string()) })),
+    async (c) => {
+      const auth = getAuth(c);
+      const values = c.req.valid("json");
+
+      if (!auth?.userId) {
+        throw new HTTPException(401, {
+          res: c.json({ error: "unauthorized" }, 401),
+        });
+      }
+
+      const [data] = await db
+        .delete(transactions)
+        .where(
+          and(
+            inArray(
+              transactions.accountId,
+              db
+                .select({ id: accounts.id })
+                .from(accounts)
+                .where(eq(accounts.userId, auth.userId))
+            )
+          )
+        )
+        .returning({ id: transactions.id });
+
+      return c.json({ data });
+    }
   );
 export default app;
