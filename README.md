@@ -1,6 +1,6 @@
 
 ## Finance Platform
-A modern, full‑stack finance management platform built with React, Next.js, Tailwind CSS, Drizzle ORM, and Recharts.
+A modern, full‑stack finance management platform sample code, built with React, Next.js, Tailwind CSS, Drizzle ORM, and Recharts.
 This application enables users to track transactions, analyze spending, and visualize financial data through interactive, responsive charts.
 
 🚀 #Tech Stack
