@@ -145,7 +145,12 @@ export const TransactionForm = ({
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <AmountInput {...field} disabled={disabled} placeholder="0.0" />
+                <AmountInput
+                  value={typeof field.value === "string" ? field.value : ""}
+                  onChange={(value) => field.onChange(value || "")}
+                  disabled={disabled}
+                  placeholder="0.0"
+                />
               </FormControl>
             </FormItem>
           )}
