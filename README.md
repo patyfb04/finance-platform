@@ -36,7 +36,7 @@ Developer Experience
 - Drizzle migrations for safe schema evolution
 - Clear, scalable folder structure
 - Environment-based configuration
-- 
+
 📊 # Charts & Visualization
 The platform uses Recharts to generate:
 - Line charts for spending trends
