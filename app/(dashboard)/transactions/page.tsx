@@ -9,7 +9,7 @@ import { Loader2, Plus } from "lucide-react";
 import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { UploadButton } from "./upload-button";
 import { ImportCard } from "./import-card";
 import { AccountColumn } from "./account-column";
@@ -25,13 +25,13 @@ enum VARIANTS {
 
 const INITIAL_IMPORT_RESULTS = { data: [], errors: [], meta: {} };
 
-const TransactionsPage = () => {
+const TransactionsPageContent = () => {
   const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
   const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
   const [AccountSelectDialog, confirm] = useSelectAccount();
 
   const newTransaction = useNewTransaction();
-  const transactionsQuery = useGetTransactions();
+  const transactionsQuery = useGetTransactions(); // This uses useSearchParams internally
   const transactions = transactionsQuery.data || [];
   const deleteTransactions = useBulkDeleteTransactions();
 
@@ -92,6 +92,7 @@ const TransactionsPage = () => {
       </div>
     );
   }
+
   if (variant === VARIANTS.IMPORT) {
     return (
       <>
@@ -138,6 +139,29 @@ const TransactionsPage = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const TransactionsPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
+          <Card className="border-none drop-shadow-sm">
+            <CardHeader>
+              <Skeleton className="h-8 w-48"></Skeleton>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[500px] w-full flex items-center justify-center">
+                <Loader2 className="size-6 text-slate-300 animate-spin"></Loader2>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <TransactionsPageContent />
+    </Suspense>
   );
 };
 
