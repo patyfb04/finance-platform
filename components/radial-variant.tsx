@@ -1,22 +1,11 @@
 import {
   Tooltip,
-  XAxis,
-  YAxis,
-  AreaChart,
-  Area,
   ResponsiveContainer,
-  CartesianGrid,
-  BarChart,
-  Bar,
   Legend,
-  Pie,
-  Cell,
-  PieChart,
   RadialBarChart,
   RadialBar,
 } from "recharts";
-import { CustomTooltip } from "./custom-tooltip";
-import { formatCurrency, formatPercentage } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { CategoryTooltip } from "./category-tooltip";
 
 const COLORS = ["#0062FF", "#12C6FF", "#FF647F", "#FF9354"];
