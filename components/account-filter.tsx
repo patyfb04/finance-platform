@@ -10,6 +10,7 @@ import {
 import qs from "query-string";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useGetAccounts } from "@/app/features/accounts/api/use-get-accounts";
+import { useGetSummary } from "@/app/features/summary/api/use-get-summary";
 
 export const AccountFilter = () => {
   const router = useRouter();
@@ -17,6 +18,8 @@ export const AccountFilter = () => {
   const searchParams = useSearchParams();
   const { data: accounts, isLoading } = useGetAccounts();
   const currentAccountId = searchParams.get("accountId") || "all";
+
+  const { data: summary, isLoading: isSummaryLoading } = useGetSummary();
 
   const onAccountChange = (accountId: string) => {
     const currentQuery = qs.parse(searchParams.toString());
@@ -41,7 +44,7 @@ export const AccountFilter = () => {
     <Select
       value={currentAccountId}
       onValueChange={(value) => onAccountChange(value)}
-      disabled={false}
+      disabled={isSummaryLoading || isLoading}
     >
       <SelectTrigger className="lg:auto w-full h-9 rounded-md px-3 font-normal bg-white/10 hover:bg-white/20 hover:text-white border-none focus:ring-offset-0 focus:ring-2 focus:ring-transparent outline-none text-white focus:bg-white/30 transition">
         <SelectValue placeholder="Account" />
