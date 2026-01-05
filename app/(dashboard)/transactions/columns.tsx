@@ -12,7 +12,7 @@ import {
   formatCurrency,
 } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { AccountColumn, ASccountColumn } from "./account-column";
+import { AccountColumn } from "./account-column";
 import { CategoryColumn } from "./category-column";
 
 export type ResponseType = InferResponseType<
