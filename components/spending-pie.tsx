@@ -5,7 +5,7 @@ import {
   CardTitle,
   CardHeader,
 } from "@/components/ui/card";
-import { AreaChart, BarChart, FileSearch, LineChart } from "lucide-react";
+import { FileSearch, PieChart, Radar, Target } from "lucide-react";
 import { AreaVariant } from "./area-variant";
 import { BarVariant } from "./bar-variant";
 import { LineVariant } from "./line-variant";
@@ -17,26 +17,26 @@ import {
   SelectValue,
   SelectItem,
 } from "@/components/ui/select";
+import { PieVariant } from "@/components/pie-variant";
+import { RadarChart, RadialBar } from "recharts";
 
 type Props = {
   data?: {
-    date: string;
-    income: number;
-    expenses: number;
+    name: string;
+    value: number;
   }[];
 };
 
-export const Chart = ({ data = [] }: Props) => {
-  const [chartType, setChartType] = useState("area");
+export const SpendingPie = ({ data = [] }: Props) => {
+  const [chartType, setChartType] = useState("pie");
   const onTypeChange = (type: string) => {
-    //add paywall check here later
     setChartType(type);
   };
 
   return (
     <Card className="border-none drop-shadow-sm">
       <CardHeader className="flex space-y-2 lg:space-y-0 lg:flex-row lg:items-center justify-between">
-        <CardTitle className="text-xl line-clamp-1">Transactions</CardTitle>
+        <CardTitle className="text-xl line-clamp-1">Categories</CardTitle>
         <Select
           onValueChange={(value) => onTypeChange(value)}
           defaultValue={chartType}
@@ -45,22 +45,22 @@ export const Chart = ({ data = [] }: Props) => {
             <SelectValue placeholder="Select chart type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="area">
+            <SelectItem value="pie">
               <div className="flex items-center">
-                <AreaChart className="size-4 mr-2 shrink-0" />
-                Area Chart
+                <PieChart className="size-4 mr-2 shrink-0" />
+                Pie Chart
               </div>
             </SelectItem>
-            <SelectItem value="bar">
+            <SelectItem value="radar">
               <div className="flex items-center">
-                <BarChart className="size-4 mr-2 shrink-0" />
-                Bar Chart
+                <RadarChart className="size-4 mr-2 shrink-0" />
+                Radar Chart
               </div>
             </SelectItem>
-            <SelectItem value="line">
+            <SelectItem value="radial">
               <div className="flex items-center">
-                <LineChart className="size-4 mr-2 shrink-0" />
-                Area Chart
+                <Target className="size-4 mr-2 shrink-0" />
+                Radial Chart
               </div>
             </SelectItem>
           </SelectContent>
@@ -71,18 +71,14 @@ export const Chart = ({ data = [] }: Props) => {
           <div className="flex flex-col gap-y-4 items-center justify-center h-[350px] w-full">
             <FileSearch className="size-6 text-muted-foreground" />
             <p className="text-muted-foreground text-sm">
-              No data for this period found.
+              No data for this period found
             </p>
           </div>
         ) : (
           <>
-            {chartType === "area" ? (
-              <AreaVariant data={data} />
-            ) : chartType === "bar" ? (
-              <BarVariant data={data} />
-            ) : (
-              <LineVariant data={data} />
-            )}
+            {chartType === "pie" && <PieVariant data={data} />}
+            {/* {chartType === "radar" && <RadarVariant data={data} />} */}
+            {/* {chartType === "radial" && <RadialVariant data={data} />} */}
           </>
         )}
       </CardContent>

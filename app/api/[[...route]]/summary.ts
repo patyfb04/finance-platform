@@ -186,9 +186,6 @@ const app = new Hono().get(
       .orderBy(transactions.date);
 
     const days = fillMissingDays(activeDays, startDate, endDate);
-
-    console.log(days);
-
     return c.json({
       data: {
         remainingAmount: current.remaining,
