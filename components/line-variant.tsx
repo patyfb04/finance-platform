@@ -7,8 +7,9 @@ import {
   Area,
   ResponsiveContainer,
   CartesianGrid,
+  LineChart,
+  Line,
 } from "recharts";
-
 import { CustomTooltip } from "./custom-tooltip";
 
 type Props = {
@@ -19,25 +20,10 @@ type Props = {
   }[];
 };
 
-export const AreaVariant = ({ data }: Props) => {
-  const formattedData = data.map((item) => ({
-    ...item,
-    date: new Date(item.date),
-  }));
-
+export const LineVariant = ({ data }: Props) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <AreaChart data={formattedData}>
-        <defs>
-          <linearGradient id="income" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="2%" stopColor="#3b82f6" stopOpacity={0.8} />
-            <stop offset="98%" stopColor="#3b82f6" stopOpacity={0} />
-          </linearGradient>
-          <linearGradient id="expenses" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="2%" stopColor="#f43f5e" stopOpacity={0.8} />
-            <stop offset="98%" stopColor="#f43f5e" stopOpacity={0} />
-          </linearGradient>
-        </defs>
+      <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           axisLine={false}
@@ -47,25 +33,21 @@ export const AreaVariant = ({ data }: Props) => {
           style={{ fontSize: "12px" }}
           tickMargin={16}
         />
+
         <Tooltip content={<CustomTooltip></CustomTooltip>}></Tooltip>
-        <Area
-          type="monotone"
+        <Line
           dataKey="income"
-          strokeWidth={2}
           stroke="#3b82f6"
-          fillOpacity={1}
-          fill="url(#income)"
+          strokeWidth={2}
           className="drop-shadow-sm"
         />
-        <Area
-          type="monotone"
+        <Line
           dataKey="expenses"
           stroke="#f43f5e"
-          fillOpacity={1}
-          fill="url(#expenses)"
+          strokeWidth={2}
           className="drop-shadow-sm"
         />
-      </AreaChart>
+      </LineChart>
     </ResponsiveContainer>
   );
 };
