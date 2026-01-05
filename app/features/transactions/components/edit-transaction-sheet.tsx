@@ -30,17 +30,26 @@ type FormValues = z.input<typeof formSchema>;
 export const EditTransactionSheet = () => {
   const { isOpen, onOpen, onClose, id } = useOpenTransaction();
 
-  const transactionQuery = useGetTransaction(id, { enabled: isOpen && !!id });
-  const editMutation = useEditTransaction(id);
-  const deleteMutation = useDeleteTransaction(id);
+  const transactionQuery = useGetTransaction(id);
+  const editMutation = useEditTransaction(id || "");
+  const deleteMutation = useDeleteTransaction(id || "");
+
+  const categoryQuery = useGetCategories();
+  const categoryMutation = useCreateCategory();
+
+  const accountQuery = useGetAccounts();
+  const accountMutation = useCreateAccount();
 
   const [ConfirmDialog, confirm] = useConfirm(
     "Are you sure?",
     "You are about to delete this transaction."
   );
 
-  const categoryQuery = useGetCategories();
-  const categoryMutation = useCreateCategory();
+  // Early return if no id - don't render anything
+  if (!isOpen || !id) {
+    return null;
+  }
+
   const onCreateCategory = (name?: string) => {
     if (!name) return;
     const safeName: string = name;
@@ -51,8 +60,7 @@ export const EditTransactionSheet = () => {
     label: category.name,
     value: category.id,
   }));
-  const accountQuery = useGetAccounts();
-  const accountMutation = useCreateAccount();
+
   const onCreateAccount = (name?: string) => {
     if (!name) return;
     const safeName: string = name; // TS now knows it's a string
@@ -76,6 +84,7 @@ export const EditTransactionSheet = () => {
     accountQuery.isLoading;
 
   const onSubmit = (values: FormValues) => {
+    if (!id) return;
     editMutation.mutate(values, {
       onSuccess: () => {
         onClose();
@@ -84,6 +93,7 @@ export const EditTransactionSheet = () => {
   };
 
   const onDelete = async () => {
+    if (!id) return;
     const ok = await confirm();
     if (ok) {
       deleteMutation.mutate(undefined, {
