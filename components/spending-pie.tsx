@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { PieVariant } from "@/components/pie-variant";
 import { RadarChart, RadialBar } from "recharts";
+import { RadarVariant } from "./radar-variant";
+import { RadialVariant } from "./radial-variant";
 
 type Props = {
   data?: {
@@ -53,7 +55,7 @@ export const SpendingPie = ({ data = [] }: Props) => {
             </SelectItem>
             <SelectItem value="radar">
               <div className="flex items-center">
-                <RadarChart className="size-4 mr-2 shrink-0" />
+                <Radar className="size-4 mr-2 shrink-0" />
                 Radar Chart
               </div>
             </SelectItem>
@@ -77,8 +79,8 @@ export const SpendingPie = ({ data = [] }: Props) => {
         ) : (
           <>
             {chartType === "pie" && <PieVariant data={data} />}
-            {/* {chartType === "radar" && <RadarVariant data={data} />} */}
-            {/* {chartType === "radial" && <RadialVariant data={data} />} */}
+            {chartType === "radar" && <RadarVariant data={data} />}
+            {chartType === "radial" && <RadialVariant data={data} />}
           </>
         )}
       </CardContent>
