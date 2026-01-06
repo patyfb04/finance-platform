@@ -3,9 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { PlaidConnect } from "@/app/features/plaid/components/plaid-connect";
+import { useGetConnectedBank } from "@/app/features/plaid/api/use-get-connected-bank";
+import { PlaidDisconnect } from "@/app/features/plaid/components/plaid-disconnect";
 
 export const SettingsCard = () => {
-  const connectedBank = null;
+  const { data: connectedBank, isLoading: isLoadingConnectedBank } =
+    useGetConnectedBank();
+
   return (
     <Card className="border-none drop-shadow-sm">
       <CardHeader>
@@ -26,7 +30,7 @@ export const SettingsCard = () => {
             >
               {connectedBank ? `Bank connected` : "No bank account connected"}
             </div>
-            <PlaidConnect />
+            {connectedBank ? <PlaidDisconnect /> : <PlaidConnect />}
           </div>
         </div>
       </CardContent>
