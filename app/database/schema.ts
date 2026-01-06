@@ -74,3 +74,9 @@ export const bulkCreateInputSchema = z.array(
     notes: z.string().optional(),
   })
 );
+
+export const connectedBanks = pgTable("connected_banks", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  accessToken: text("access_token").notNull(),
+});
