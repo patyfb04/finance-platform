@@ -6,11 +6,13 @@ import { useMount } from "react-use";
 import { useCreateLinkToken } from "../api/use-create-link-token";
 import { PlaidLink, usePlaidLink } from "react-plaid-link";
 import { useExchangePublicToken } from "../api/use-exchange-public-token";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const PlaidConnect = () => {
   const [token, setToken] = useState<string | null>(null);
   const createLinkToken = useCreateLinkToken();
   const exchangePublicToken = useExchangePublicToken();
+  const queryClient = useQueryClient();
 
   useMount(() => {
     createLinkToken.mutate(undefined, {
@@ -27,7 +29,15 @@ export const PlaidConnect = () => {
   const plaid = usePlaidLink({
     token: token || "",
     onSuccess: (public_token, metadata) => {
-      exchangePublicToken.mutate({ public_token });
+      exchangePublicToken.mutate(
+        { public_token },
+        {
+          onSuccess: () => {
+            // Invalidate and refetch connected bank data
+            queryClient.invalidateQueries({ queryKey: ["connected-bank"] });
+          },
+        }
+      );
     },
     env: "sandbox",
   });
