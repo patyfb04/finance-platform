@@ -1,6 +1,6 @@
 
 ## Finance Platform
-A modern, full‑stack finance management platform sample code, built with React, Next.js, Tailwind CSS, Drizzle ORM, and Recharts.
+A modern, full‑stack finance management platform sample code, built with React, Next.js, Tailwind CSS, Drizzle ORM, and Recharts and integration with Plaid (financial platform). Unit tests  with Vitest.
 This application enables users to track transactions, analyze spending, and visualize financial data through interactive, responsive charts.
 
 demo: https://finance-platform-brown.vercel.app/
