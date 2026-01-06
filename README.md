@@ -2,7 +2,11 @@
 ## Finance Platform
 A modern, full‑stack finance management platform sample code, built with React, Next.js, Tailwind CSS, Drizzle ORM, and Recharts.
 This application enables users to track transactions, analyze spending, and visualize financial data through interactive, responsive charts.
+
 demo: https://finance-platform-brown.vercel.app/
+user: admin@admin.com
+pass: @dm!n_@dm!n
+
 
 🚀 #Tech Stack
 Frontend
