@@ -17,7 +17,6 @@ Frontend
 - Backend / Database
 - Drizzle ORM
 - PostgreSQL
-- Next.js API Routes
 - Vitest unit tests
 
 📦 #Features
