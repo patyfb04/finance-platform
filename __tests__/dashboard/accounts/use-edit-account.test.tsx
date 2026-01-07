@@ -164,7 +164,9 @@ describe("useEditAccount", () => {
     const mockResponse = createMockResponse({ data: expectedResult });
 
     const { client } = await import("@/lib/hono");
-    vi.mocked(client.api.accounts[":id"].$patch).mockResolvedValue(mockResponse);
+    vi.mocked(client.api.accounts[":id"].$patch).mockResolvedValue(
+      mockResponse
+    );
 
     const { result } = renderHook(() => useEditAccount(accountId), {
       wrapper: TestWrapper,
