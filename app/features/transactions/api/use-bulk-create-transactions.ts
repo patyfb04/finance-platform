@@ -13,7 +13,7 @@ type RequestType = InferRequestType<
 export const useBulkCreateTransactions = () => {
   const queryClient = useQueryClient();
   return useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async (json: any) => {
+    mutationFn: async (json: RequestType) => {
       const response = await client.api.transactions["bulk-create"].$post({
         json,
       });

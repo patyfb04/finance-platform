@@ -1,38 +1,40 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import React from "react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
 import AccountsPage from "@/app/(dashboard)/accounts/page";
 import { useGetAccounts } from "@/app/features/accounts/api/use-get-accounts";
 
+// ✅ Use the actual UseQueryResult type instead of custom interface
+interface AccountData {
+  id: string;
+  name: string;
+  userId?: string;
+  plaidId?: string | null;
+  created_at?: string;
+}
+
+// ✅ Use the proper React Query type
+type UseGetAccountsReturn = UseQueryResult<AccountData[], Error>;
+
 const createWrapper = () => {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return ({ children }: { children: React.ReactNode }) => (
+
+  const TestWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+  TestWrapper.displayName = "TestWrapper";
+  return TestWrapper;
 };
 
 vi.mock("@/app/features/accounts/api/use-get-accounts", () => ({
   useGetAccounts: vi.fn(),
 }));
 
-// Create a persistent mock function
 const mockOnOpen = vi.fn();
-
-// Mock the hook more comprehensively
-vi.mock("@/features/accounts/hooks/use-new-account", () => ({
-  useNewAccount: vi.fn(() => ({
-    onOpen: mockOnOpen,
-  })),
-}));
-
-// Also try alternative paths
-vi.mock("@/hooks/use-new-account", () => ({
-  useNewAccount: vi.fn(() => ({
-    onOpen: mockOnOpen,
-  })),
-}));
 
 vi.mock("@/app/features/accounts/hooks/use-new-account", () => ({
   useNewAccount: vi.fn(() => ({
@@ -40,41 +42,50 @@ vi.mock("@/app/features/accounts/hooks/use-new-account", () => ({
   })),
 }));
 
+// ✅ Helper function with only valid UseQueryResult properties
+const createMockUseGetAccountsReturn = (
+  overrides: Partial<UseGetAccountsReturn> = {}
+): UseGetAccountsReturn =>
+  ({
+    data: [
+      { id: "1", name: "Checking Account" },
+      { id: "2", name: "Savings Account" },
+    ],
+    error: null,
+    isError: false,
+    isPending: false,
+    isLoading: false,
+    isLoadingError: false,
+    isRefetchError: false,
+    isSuccess: true,
+    status: "success",
+    dataUpdatedAt: Date.now(),
+    errorUpdatedAt: 0,
+    errorUpdateCount: 0,
+    failureCount: 0,
+    failureReason: null,
+    fetchStatus: "idle",
+    isFetched: true,
+    isFetchedAfterMount: true,
+    isFetching: false,
+    isInitialLoading: false,
+    isPaused: false,
+    isPlaceholderData: false,
+    isRefetching: false,
+    isStale: false,
+    refetch: vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    }),
+    // ✅ Remove the 'remove' property as it doesn't exist in UseQueryResult
+    ...overrides,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any); // Type assertion for testing - ensures compatibility
+
 describe("AccountsPage", () => {
   beforeEach(() => {
-    // Clear only the call history, not the mock function itself
     mockOnOpen.mockClear();
-
-    // Set default mock return value
-    vi.mocked(useGetAccounts).mockReturnValue({
-      data: [
-        { id: "1", name: "Checking Account" },
-        { id: "2", name: "Savings Account" },
-      ],
-      isLoading: false,
-      isError: false,
-      error: null,
-      isSuccess: true,
-      status: "success",
-      dataUpdatedAt: Date.now(),
-      errorUpdatedAt: 0,
-      failureCount: 0,
-      failureReason: null,
-      fetchStatus: "idle",
-      isFetched: true,
-      isFetchedAfterMount: true,
-      isFetching: false,
-      isInitialLoading: false,
-      isLoadingError: false,
-      isPaused: false,
-      isPending: false,
-      isPlaceholderData: false,
-      isRefetchError: false,
-      isRefetching: false,
-      isStale: false,
-      refetch: vi.fn(),
-      remove: vi.fn(),
-    } as any);
+    vi.mocked(useGetAccounts).mockReturnValue(createMockUseGetAccountsReturn());
   });
 
   it("renders page title and add button", () => {
@@ -94,38 +105,24 @@ describe("AccountsPage", () => {
   });
 
   it("shows loading state", () => {
-    vi.mocked(useGetAccounts).mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-      error: null,
-      isSuccess: false,
-      status: "pending",
-      dataUpdatedAt: 0,
-      errorUpdatedAt: 0,
-      failureCount: 0,
-      failureReason: null,
-      fetchStatus: "fetching",
-      isFetched: false,
-      isFetchedAfterMount: false,
-      isFetching: true,
-      isInitialLoading: true,
-      isLoadingError: false,
-      isPaused: false,
-      isPending: true,
-      isPlaceholderData: false,
-      isRefetchError: false,
-      isRefetching: false,
-      isStale: false,
-      refetch: vi.fn(),
-      remove: vi.fn(),
-    } as any);
+    vi.mocked(useGetAccounts).mockReturnValue(
+      createMockUseGetAccountsReturn({
+        data: undefined,
+        isLoading: true,
+        isPending: true,
+        isSuccess: false,
+        status: "pending",
+        fetchStatus: "fetching",
+        isFetched: false,
+        isFetchedAfterMount: false,
+        isFetching: true,
+        isInitialLoading: true,
+        dataUpdatedAt: 0,
+      })
+    );
 
-    render(<AccountsPage />, {
-      wrapper: createWrapper(),
-    });
+    render(<AccountsPage />, { wrapper: createWrapper() });
 
-    // Just verify accounts are not rendered during loading
     expect(screen.queryByText("Checking Account")).not.toBeInTheDocument();
     expect(screen.queryByText("Savings Account")).not.toBeInTheDocument();
   });
@@ -133,49 +130,43 @@ describe("AccountsPage", () => {
   it("component renders without errors and button exists", () => {
     render(<AccountsPage />, { wrapper: createWrapper() });
 
-    // Verify the component renders
     expect(screen.getByText(/accounts/i)).toBeInTheDocument();
 
-    // Verify the add button exists
     const addButton = screen.getByRole("button", { name: /add new/i });
     expect(addButton).toBeInTheDocument();
 
-    // Verify our mock is callable
     mockOnOpen();
     expect(mockOnOpen).toHaveBeenCalledTimes(1);
   });
 
   it("shows empty state when no accounts", () => {
-    vi.mocked(useGetAccounts).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-      isSuccess: true,
-      status: "success",
-      dataUpdatedAt: Date.now(),
-      errorUpdatedAt: 0,
-      failureCount: 0,
-      failureReason: null,
-      fetchStatus: "idle",
-      isFetched: true,
-      isFetchedAfterMount: true,
-      isFetching: false,
-      isInitialLoading: false,
-      isLoadingError: false,
-      isPaused: false,
-      isPending: false,
-      isPlaceholderData: false,
-      isRefetchError: false,
-      isRefetching: false,
-      isStale: false,
-      refetch: vi.fn(),
-      remove: vi.fn(),
-    } as any);
+    vi.mocked(useGetAccounts).mockReturnValue(
+      createMockUseGetAccountsReturn({
+        data: [],
+      })
+    );
 
     render(<AccountsPage />, { wrapper: createWrapper() });
 
-    // Check that no account items are rendered
+    expect(screen.queryByText("Checking Account")).not.toBeInTheDocument();
+    expect(screen.queryByText("Savings Account")).not.toBeInTheDocument();
+  });
+
+  it("shows error state", () => {
+    vi.mocked(useGetAccounts).mockReturnValue(
+      createMockUseGetAccountsReturn({
+        data: undefined,
+        isLoading: false,
+        isPending: false,
+        isError: true,
+        error: new Error("Failed to fetch accounts"),
+        isSuccess: false,
+        status: "error",
+      })
+    );
+
+    render(<AccountsPage />, { wrapper: createWrapper() });
+
     expect(screen.queryByText("Checking Account")).not.toBeInTheDocument();
     expect(screen.queryByText("Savings Account")).not.toBeInTheDocument();
   });

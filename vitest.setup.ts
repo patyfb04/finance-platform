@@ -1,13 +1,19 @@
-import { beforeAll } from "vitest";
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
-beforeAll(() => {
-  // Ensure DOM is available
-  if (typeof global.document === "undefined") {
-    const { JSDOM } = require("jsdom");
-    const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-    global.document = dom.window.document;
-    global.window = dom.window as any;
-    global.navigator = dom.window.navigator;
-  }
-});
+// Mock Next.js navigation globally
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    pathname: "/",
+    query: {},
+    asPath: "/",
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams("from=&to=&accountId="),
+  useParams: () => ({}),
+}));

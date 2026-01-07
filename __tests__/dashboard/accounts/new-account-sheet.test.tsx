@@ -1,8 +1,31 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import React from "react";
+import { render } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useNewAccount } from "@/app/features/accounts/hooks/use-new-account";
 
-// Mock the hooks before importing the component - no external variables
+// ✅ Define proper interfaces for props
+interface FormFieldProps {
+  render: (args: {
+    field: { onChange: () => void; value: string; name: string };
+  }) => React.ReactNode;
+}
+
+interface InputProps {
+  [key: string]: unknown;
+}
+
+interface HandleSubmitFunction {
+  (data: Record<string, unknown>): void;
+}
+
+interface FormControllerProps {
+  render: (args: {
+    field: { onChange: () => void; value: string };
+  }) => React.ReactNode;
+}
+
+// Mock the hooks before importing the component
 vi.mock("@/app/features/accounts/hooks/use-new-account", () => ({
   useNewAccount: vi.fn(() => ({
     isOpen: false,
@@ -51,7 +74,8 @@ vi.mock("@/components/ui/form", () => ({
   FormControl: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="form-control">{children}</div>
   ),
-  FormField: ({ render }: any) => (
+  // ✅ Fix line 54: Replace any with proper interface
+  FormField: ({ render }: FormFieldProps) => (
     <div data-testid="form-field">
       {render &&
         render({ field: { onChange: vi.fn(), value: "", name: "test" } })}
@@ -68,8 +92,9 @@ vi.mock("@/components/ui/form", () => ({
   ),
 }));
 
+// ✅ Fix line 72: Replace any with proper interface
 vi.mock("@/components/ui/input", () => ({
-  Input: (props: any) => <input data-testid="input" {...props} />,
+  Input: (props: InputProps) => <input data-testid="input" {...props} />,
 }));
 
 vi.mock("@/components/ui/button", () => ({
@@ -81,14 +106,16 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("react-hook-form", () => ({
   useForm: () => ({
     control: {},
-    handleSubmit: (fn: any) => (e: any) => {
+    // ✅ Fix line 84: Replace both any types
+    handleSubmit: (fn: HandleSubmitFunction) => (e: Event | undefined) => {
       e?.preventDefault?.();
       fn({});
     },
     formState: { isSubmitting: false, errors: {} },
     reset: vi.fn(),
   }),
-  Controller: ({ render }: any) =>
+  // ✅ Fix line 91: Replace any with proper interface
+  Controller: ({ render }: FormControllerProps) =>
     render({ field: { onChange: vi.fn(), value: "" } }),
 }));
 
@@ -99,9 +126,12 @@ const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return ({ children }: { children: React.ReactNode }) => (
+
+  const TestWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+  TestWrapper.displayName = "TestWrapper";
+  return TestWrapper;
 };
 
 describe("NewAccountSheet", () => {
@@ -115,5 +145,19 @@ describe("NewAccountSheet", () => {
     // Simple test to verify the component exists
     expect(NewAccountSheet).toBeDefined();
     expect(typeof NewAccountSheet).toBe("function");
+  });
+
+  it("renders sheet content when open", () => {
+    const mockUseNewAccount = vi.mocked(useNewAccount);
+    mockUseNewAccount.mockReturnValue({
+      isOpen: true,
+      onClose: vi.fn(),
+    });
+
+    const { getByTestId } = render(<NewAccountSheet />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(getByTestId("sheet")).toBeInTheDocument();
   });
 });

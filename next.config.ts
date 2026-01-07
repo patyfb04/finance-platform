@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
       "@": "./app",
     },
   },
+} as NextConfig & {
+  eslint?: {
+    dirs?: string[];
+    ignoreDuringBuilds?: boolean;
+  };
 };
 
 export default nextConfig;

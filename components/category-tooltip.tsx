@@ -2,17 +2,29 @@ import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 
-export const CategoryTooltip = ({ active, payload }: any) => {
+interface CategoryTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name: string;
+    color: string;
+    dataKey?: string;
+    payload?: Record<string, unknown>; // The original data point
+  }>;
+  label?: string | number;
+}
+
+export const CategoryTooltip = ({ active, payload }: CategoryTooltipProps) => {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
-  const name = payload[0].payload.name;
+  const name = payload[0]?.payload?.name;
   const value = payload[0].value;
 
   return (
     <div className="rounded-sm bg-white shadow-sm border overflow-hidden">
       <div className="text-sm p-2 px-3 bg-muted text-muted-foreground">
-        {name}
+        {typeof name === "string" ? name : String(name ?? "Unknown")}
       </div>
       <Separator />
       <div className="p-2 px-3 space-y-1">
