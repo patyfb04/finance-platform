@@ -2,14 +2,32 @@ name: Dev Workflow
 
 on:
   push:
-    branches: [dev]
-  pull_request:
     branches: [features/*]
+  workflow_dispatch:
 
 jobs:
+  auto-merge-to-dev:
+    name: Auto-merge to Dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+		
+      - name: Configure Git
+        run: |
+          git config user.name "Patricia"
+          git config user.email "patyfb04@gmail.com"
+
+      - name: Merge to dev branch
+        run: |
+          git fetch origin dev
+          git checkout dev
+          git merge --no-ff origin/${{ github.ref_name }} -m "Auto-merge: ${{ github.ref_name }} → dev"
+          git push origin dev
+
   call-common-deploy:
+    name: Deploy to Development
+    needs: auto-merge-to-dev
     uses: ./.github/workflows/common-deploy.yml
     with:
       bun-version: "latest"
-      environment: "development"
-	  
