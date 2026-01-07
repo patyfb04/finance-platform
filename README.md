@@ -16,7 +16,7 @@ Frontend
 - Recharts (data visualization)
 Backend / Database
 - Drizzle ORM
-- PostgreSQL (or compatible SQL database)
+- PostgreSQL
 - Next.js API Routes
 - Vitest unit tests
 
