@@ -31,7 +31,7 @@ const TransactionsPageContent = () => {
   const [AccountSelectDialog, confirm] = useSelectAccount();
 
   const newTransaction = useNewTransaction();
-  const transactionsQuery = useGetTransactions(); // This uses useSearchParams internally
+  const transactionsQuery = useGetTransactions({}); // This uses useSearchParams internally
   const transactions = transactionsQuery.data || [];
   const deleteTransactions = useBulkDeleteTransactions();
 
