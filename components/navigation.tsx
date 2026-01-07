@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import NavButton from "./nav-button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -19,11 +19,20 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const isMobile = useMedia("(max-width: 1024px)", false);
+  const pathname = usePathname();
 
   const onClick = (href: string) => {
     router.push(href);
     setIsOpen(false);
   };
+
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
+
+  const shouldShowNavigation = useMemo(() => {
+    return pathname !== "/login" && pathname !== "/register";
+  }, [pathname]);
 
   if (isMobile) {
     return (
@@ -41,7 +50,7 @@ const Navigation = () => {
           <nav className="flex flex-col gap-y-2 pt-6">
             {routes.map((route) => (
               <Button
-                variant={route.href === usePathname() ? "secondary" : "ghost"}
+                variant={route.href === pathname ? "secondary" : "ghost"}
                 key={route.href}
                 onClick={() => onClick(route.href)}
                 className="w-full justify-start"
@@ -55,18 +64,17 @@ const Navigation = () => {
     );
   }
 
-  const pathName = usePathname();
-
   return (
     <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
-      {routes.map((route) => (
-        <NavButton
-          key={route.href}
-          label={route.label}
-          isActive={pathName === route.href}
-          href={route.href}
-        ></NavButton>
-      ))}
+      {shouldShowNavigation &&
+        routes.map((route) => (
+          <NavButton
+            key={route.href}
+            label={route.label}
+            isActive={isActive(route.href)}
+            href={route.href}
+          ></NavButton>
+        ))}
     </nav>
   );
 };

@@ -15,7 +15,7 @@ export const useExchangePublicToken = () => {
   const queryClient = useQueryClient();
 
   return useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async (json: any) => {
+    mutationFn: async (json: RequestType) => {
       const response = await client.api.plaid["exchange-public-token"].$post({
         json,
       });

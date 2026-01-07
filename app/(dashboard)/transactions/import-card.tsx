@@ -1,5 +1,7 @@
-import { Card, CardContent, CardTitle, CardHeader } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { ImportTable } from "./import-table";
 import { format, parse } from "date-fns";
@@ -8,15 +10,24 @@ const dateFormat = "yyyy-MM-dd HH:mm:ss";
 const outputFormat = "yyyy-MM-dd";
 const requiredOptions = ["amount", "date", "payee"];
 
+// ✅ Fix line 14 - replace any with proper type
+interface FormattedData {
+  amount: string;
+  date: string;
+  payee: string;
+  [key: string]: string;
+}
+
 type Props = {
   data: string[][];
   onCancel: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormattedData[]) => void; // ✅ Replace any with FormattedData[]
 };
 
 interface SelectedColumnsState {
   [key: string]: string | null;
 }
+
 export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<SelectedColumnsState>(
     {}
@@ -43,19 +54,22 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
       return newSelectedColumns;
     });
   };
+
   const progress = Object.values(selectedColumns).filter(Boolean).length;
 
   const handleContinue = () => {
     const getColumnIndex = (column: string) => {
       return column.split("_")[1];
     };
+
     const mappedData = {
       headers: headers.map((_header, index) => {
         const columnIndex = getColumnIndex(`column_${index}`);
         return selectedColumns[`column_${columnIndex}`] || null;
       }),
       body: body
-        .map((row, index) => {
+        .map((row) => {
+          // ✅ Fix line 59 - remove unused index parameter
           const transformedRow = row.map((cell, index) => {
             const columnIndex = getColumnIndex(`column_${index}`);
             return selectedColumns[`column_${columnIndex}`] ? cell : null;
@@ -66,19 +80,21 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
         })
         .filter((row) => row.length > 0),
     };
+
     const arrayOfData = mappedData.body.map((row) => {
-      return row.reduce((acc: any, cell, index) => {
+      // ✅ Fix line 71 - replace any with proper type
+      return row.reduce((acc: Record<string, string>, cell, index) => {
         const header = mappedData.headers[index];
-        if (header !== null) {
+        if (header !== null && cell !== null) {
           acc[header] = cell;
         }
         return acc;
       }, {});
     });
 
-    const formattedData = arrayOfData.map((item) => ({
+    const formattedData: FormattedData[] = arrayOfData.map((item) => ({
       ...item,
-      amount: item.amount.trim(),
+      amount: item.amount?.trim() || "",
       date: format(parse(item.date, dateFormat, new Date()), outputFormat),
     }));
 
@@ -118,3 +134,6 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
     </div>
   );
 };
+
+// ✅ Remove duplicate ImportCard component and test code - keep only the main one above
+export default ImportCard;

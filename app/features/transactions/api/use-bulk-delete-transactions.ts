@@ -13,7 +13,7 @@ type RequestType = InferRequestType<
 export const useBulkDeleteTransactions = () => {
   const queryClient = useQueryClient();
   return useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async (json: any) => {
+    mutationFn: async (json: RequestType) => {
       const response = await client.api.transactions["bulk-delete"]["$post"]({
         json,
       });

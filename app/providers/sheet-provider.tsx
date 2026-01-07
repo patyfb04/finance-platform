@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NewAccountSheet } from "../features/accounts/components/new-account-sheet";
 import { EditAccountSheet } from "../features/accounts/components/edit-account-sheet";
 import { Edit } from "lucide-react";
@@ -8,25 +8,18 @@ import { EditCategorySheet } from "../features/categories/components/edit-catego
 import { NewTransactionSheet } from "../features/transactions/components/new-transaction-sheet";
 import { EditTransactionSheet } from "../features/transactions/components/edit-transaction-sheet";
 
-export const SheetProvider = () => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
+export const SheetProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isMounted, setIsMounted] = useState(true);
 
   return (
-    <>
+    <div>
+      {children}
       <NewAccountSheet></NewAccountSheet>
       <EditAccountSheet></EditAccountSheet>
       <NewCategorySheet></NewCategorySheet>
       <EditCategorySheet></EditCategorySheet>
       <NewTransactionSheet></NewTransactionSheet>
       <EditTransactionSheet></EditTransactionSheet>
-    </>
+    </div>
   );
 };

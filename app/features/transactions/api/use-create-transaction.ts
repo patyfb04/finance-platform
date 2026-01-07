@@ -11,7 +11,7 @@ type RequestType = InferRequestType<
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async (json: any) => {
+    mutationFn: async (json: RequestType) => {
       const response = await client.api.transactions.$post({ json });
       return await response.json();
     },
