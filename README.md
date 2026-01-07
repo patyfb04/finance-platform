@@ -14,7 +14,7 @@ Frontend
 - Next.js (App Router)
 - Tailwind CSS
 - Recharts (data visualization)
-Backend / Database
+- Backend / Database
 - Drizzle ORM
 - PostgreSQL
 - Next.js API Routes
