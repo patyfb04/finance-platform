@@ -1,4 +1,3 @@
-
 name: Prod Workflow
 
 on:
@@ -52,4 +51,3 @@ jobs:
     uses: ./.github/workflows/common-deploy.yml
     with:
       bun-version: "latest"
-      environment: "production"
