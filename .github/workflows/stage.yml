@@ -3,6 +3,10 @@ name: Stage Workflow
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write # Allow writing to repository
+  actions: read # Allow reading actions
+
 jobs:
   merge-dev-to-stage:
     runs-on: ubuntu-latest
@@ -12,16 +16,15 @@ jobs:
         with:
           ref: stage
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
           git config user.name "Patricia"
           git config user.email "patyfb04@gmail.com"
 
-      - name: Fetch all branches
-        run: |
-          git fetch origin dev
-          git fetch origin stage
+      - name: Fetch dev branch
+        run: git fetch origin dev
 
       - name: Merge dev into stage
         run: |
