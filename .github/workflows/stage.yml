@@ -20,6 +20,9 @@ jobs:
       - name: Fetch dev branch
         run: git fetch origin dev
 
+      - name: Set up Git authentication
+        run: git config --global url."https://${{ secrets.ACTIONS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+
       - name: Merge dev into stage
         run: |
           git merge origin/dev --no-ff -m "Merge dev into stage"
