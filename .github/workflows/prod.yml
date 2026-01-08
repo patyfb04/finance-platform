@@ -29,5 +29,5 @@ jobs:
     needs: merge-stage-into-main
     uses: ./.github/workflows/common-deploy.yml
     with:
-      node-version: "20" # or your required Node.js version
+      node-version: "20"
     secrets: inherit
