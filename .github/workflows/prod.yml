@@ -7,7 +7,7 @@ jobs:
   rebase-stage-onto-prod:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout prod branch
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
           ref: main
@@ -20,7 +20,7 @@ jobs:
       - name: Fetch stage branch
         run: git fetch origin stage
 
-      - name: Rebase stage onto prod
+      - name: Rebase stage onto main
         run: |
           git checkout stage
           git rebase origin/main
@@ -50,4 +50,5 @@ jobs:
     needs: merge-stage-to-main
     uses: ./.github/workflows/common-deploy.yml
     with:
-      bun-version: "latest"
+      node-version: "20" # or your required Node.js version
+    secrets: inherit
