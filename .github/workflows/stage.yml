@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  rebase-dev-onto-stage:
+  merge-dev-into-stage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout stage branch
@@ -20,34 +20,13 @@ jobs:
       - name: Fetch dev branch
         run: git fetch origin dev
 
-      - name: Rebase dev onto stage
-        run: |
-          git checkout dev
-          git rebase origin/stage
-          git push origin dev --force
-
-  merge-dev-to-stage:
-    needs: rebase-dev-onto-stage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout stage branch
-        uses: actions/checkout@v4
-        with:
-          ref: stage
-
-      - name: Configure Git
-        run: |
-          git config user.name "Patricia"
-          git config user.email "patyfb04@gmail.com"
-
       - name: Merge dev into stage
         run: |
-          git fetch origin dev
           git merge origin/dev --no-ff -m "Merge dev into stage"
           git push origin stage
 
   call-common-deploy:
-    needs: merge-dev-to-stage
+    needs: merge-dev-into-stage
     uses: ./.github/workflows/common-deploy.yml
     with:
       node-version: "20" # or your required Node.js version
