@@ -50,4 +50,5 @@ jobs:
     needs: merge-dev-to-stage
     uses: ./.github/workflows/common-deploy.yml
     with:
-      bun-version: "latest"
+      node-version: "20" # or your required Node.js version
+    secrets: inherit
