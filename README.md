@@ -51,4 +51,7 @@ The platform uses Recharts to generate:
 - Pie charts for income vs. expenses
 - Area charts for cumulative cash flow
   All charts are responsive and integrate seamlessly with Tailwind and Next.js.
-  test 1
+
+to do: more unit tests and e2e tests with Playwright
+test1
+
