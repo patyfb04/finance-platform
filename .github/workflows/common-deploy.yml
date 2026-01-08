@@ -3,7 +3,7 @@ name: Common Deploy
 on:
   workflow_call:
     inputs:
-      bun-version:
+      node-version:
         required: true
         type: string
 
@@ -30,4 +30,3 @@ jobs:
 
       - name: Build
         run: bun run build
-		  
