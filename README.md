@@ -53,4 +53,4 @@ The platform uses Recharts to generate:
   All charts are responsive and integrate seamlessly with Tailwind and Next.js.
 
 to do: more unit tests and e2e tests with Playwright
-test2
+test3
