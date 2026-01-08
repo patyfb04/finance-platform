@@ -23,6 +23,9 @@ jobs:
       - name: Set up Git authentication
         run: git config --global url."https://${{ secrets.ACTIONS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
+      - name: Set remote URL with PAT
+        run: git remote set-url origin https://patyfb04:${{ secrets.ACTIONS_PAT }}@github.com/patyfb04/finance-platform.git
+
       - name: Merge dev into stage
         run: |
           git merge origin/dev --no-ff -m "Merge dev into stage"
