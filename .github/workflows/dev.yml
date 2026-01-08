@@ -4,10 +4,11 @@ on:
   push:
     branches: [dev]
   pull_request:
-    branches: [features/*]
+    branches: [features/*, fixes/*]
 
 jobs:
   call-common-deploy:
     uses: ./.github/workflows/common-deploy.yml
     with:
-      bun-version: "latest"
+      node-version: "20" # or your required Node.js version
+    secrets: inherit
