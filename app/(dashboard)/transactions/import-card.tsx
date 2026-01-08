@@ -8,10 +8,14 @@ const dateFormat = "yyyy-MM-dd HH:mm:ss";
 const outputFormat = "yyyy-MM-dd";
 const requiredOptions = ["amount", "date", "payee"];
 
+export type ImportedRow = {
+  [key: string]: string;
+};
+
 type Props = {
   data: string[][];
   onCancel: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ImportedRow[]) => void;
 };
 
 interface SelectedColumnsState {
@@ -55,7 +59,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
         return selectedColumns[`column_${columnIndex}`] || null;
       }),
       body: body
-        .map((row, index) => {
+        .map((row) => {
           const transformedRow = row.map((cell, index) => {
             const columnIndex = getColumnIndex(`column_${index}`);
             return selectedColumns[`column_${columnIndex}`] ? cell : null;
@@ -67,9 +71,9 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
         .filter((row) => row.length > 0),
     };
     const arrayOfData = mappedData.body.map((row) => {
-      return row.reduce((acc: any, cell, index) => {
+      return row.reduce<Record<string, string>>((acc, cell, index) => {
         const header = mappedData.headers[index];
-        if (header !== null) {
+        if (header !== null && cell !== null) {
           acc[header] = cell;
         }
         return acc;

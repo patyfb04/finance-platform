@@ -1,19 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import Page from "../../../app/(auth)/sign-up/[[...sign-up]]/page";
+import type { PropsWithChildren } from "react";
+import Page from "../../../app/(auth)/sign-in/[[...sign-in]]/page";
 
 // Mock Clerk and Lucide components
 vi.mock("@clerk/nextjs", () => ({
-  ClerkLoaded: ({ children }: any) => <>{children}</>,
-  ClerkLoading: ({ children }: any) => <>{children}</>,
-  SignUp: () => <div>SignUp Component</div>,
+  ClerkLoaded: ({ children }: PropsWithChildren<object>) => <>{children}</>,
+  ClerkLoading: ({ children }: PropsWithChildren<object>) => <>{children}</>,
+  SignIn: () => <div>SignIn Component</div>,
 }));
 vi.mock("lucide-react", () => ({
   Loader2: () => <div>Loader</div>,
 }));
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: Record<string, unknown>) => <img {...props} />,
 }));
 
 describe("Page", () => {
@@ -23,10 +24,10 @@ describe("Page", () => {
     expect(screen.getByText(/Log In or Create and account/i)).not.toBeNull();
   });
 
-  it("renders SignUp component", () => {
+  it("renders SignIn component", () => {
     render(<Page />);
-    const signUpComponents = screen.getAllByText("SignUp Component");
-    expect(signUpComponents.length).toBeGreaterThan(0);
+    const signInComponents = screen.getAllByText("SignIn Component");
+    expect(signInComponents.length).toBeGreaterThan(0);
   });
 
   it("renders logo image", () => {

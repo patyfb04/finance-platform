@@ -13,7 +13,7 @@ type RequestType = InferRequestType<
 export const useEditAccount = (id?: string) => {
   const queryClient = useQueryClient();
   return useMutation<ResponseType, Error, RequestType>({
-    mutationFn: async (json: any) => {
+    mutationFn: async (json: RequestType) => {
       const response = await client.api.accounts[":id"]["$patch"]({
         param: { id },
         json,

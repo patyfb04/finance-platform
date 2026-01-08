@@ -11,19 +11,24 @@ import { DataTable } from "@/components/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, Suspense } from "react";
 import { UploadButton } from "./upload-button";
-import { ImportCard } from "./import-card";
+import { ImportCard, ImportedRow } from "./import-card";
 import { AccountColumn } from "./account-column";
 import { useSelectAccount } from "@/app/features/accounts/hooks/use-select-account";
 import { transactions as transactionsSchema } from "@/app/database/schema";
 import { toast } from "sonner";
 import { useBulkCreateTransactions } from "@/app/features/transactions/api/use-bulk-create-transactions";
+import { ImportResults } from "./types/import-results";
 
 enum VARIANTS {
   LIST = "LIST",
   IMPORT = "IMPORT",
 }
 
-const INITIAL_IMPORT_RESULTS = { data: [], errors: [], meta: {} };
+const INITIAL_IMPORT_RESULTS: ImportResults = {
+  data: [],
+  errors: [],
+  meta: {},
+};
 
 const TransactionsPageContent = () => {
   const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
@@ -40,7 +45,7 @@ const TransactionsPageContent = () => {
   const isDisabled =
     transactionsQuery.isLoading || deleteTransactions.isPending;
 
-  const onUpload = (results: typeof INITIAL_IMPORT_RESULTS) => {
+  const onUpload = (results: ImportResults) => {
     setImportResults(results);
     setVariant(VARIANTS.IMPORT);
   };
@@ -50,25 +55,25 @@ const TransactionsPageContent = () => {
     setVariant(VARIANTS.LIST);
   };
 
-  const onSubmitImport = async (
-    values: (typeof transactionsSchema.$inferInsert)[]
-  ) => {
+  type ImportResults = typeof INITIAL_IMPORT_RESULTS;
+
+  const onSubmitImport = async (rows: ImportedRow[]) => {
     const accountId = await confirm();
     if (!accountId) {
       return toast.error("Please select an account to continue");
     }
 
-    const data = values.map((value) => ({
-      ...value,
-      accountId: accountId as string,
-      date:
-        value.date instanceof Date
-          ? value.date.toISOString().split("T")[0] // "YYYY-MM-DD"
-          : value.date,
-      categoryId: value.categoryId ?? undefined,
-      notes: value.notes ?? undefined,
+    // Map ImportedRow[] to your insert type here
+    const data = rows.map((row) => ({
+      date: row.date, // already a string, no need for toISOString
+      amount: row.amount,
+      payee: row.payee,
+      accountId: row.accountId,
+      notes: row.notes,
+      categoryId: row.categoryId,
     }));
 
+    // No type assertion needed if your mutation expects the correct type
     createTransactions.mutate(data, {
       onSuccess: () => {
         onCancelImport();
@@ -98,8 +103,8 @@ const TransactionsPageContent = () => {
       <>
         <AccountSelectDialog></AccountSelectDialog>
         <ImportCard
-          data={importResults.data}
-          onSubmit={onSubmitImport}
+          data={importResults.data as string[][]}
+          onSubmit={onSubmitImport} // Now matches the expected type
           onCancel={onCancelImport}
         />
       </>

@@ -1,5 +1,5 @@
-import { InferRequestType, InferResponseType } from "hono";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { InferResponseType } from "hono";
+import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/hono";
 import { toast } from "sonner";
 
@@ -8,11 +8,9 @@ type ResponseType = InferResponseType<
 >;
 
 export const useCreateLinkToken = () => {
-  return useMutation<ResponseType, Error>({
-    mutationFn: async (json: any) => {
-      const response = await client.api.plaid["create-link-token"].$post({
-        json,
-      });
+  return useMutation<ResponseType, Error, void>({
+    mutationFn: async () => {
+      const response = await client.api.plaid["create-link-token"].$post();
       if (!response.ok) {
         throw new Error("Failed to create link token");
       }

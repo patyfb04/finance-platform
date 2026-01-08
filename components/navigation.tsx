@@ -19,10 +19,15 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const isMobile = useMedia("(max-width: 1024px)", false);
+  const pathname = usePathname(); // ✅ Always at the top level
 
   const onClick = (href: string) => {
     router.push(href);
     setIsOpen(false);
+  };
+
+  const handleClick = () => {
+    // use pathname here
   };
 
   if (isMobile) {
@@ -41,7 +46,8 @@ const Navigation = () => {
           <nav className="flex flex-col gap-y-2 pt-6">
             {routes.map((route) => (
               <Button
-                variant={route.href === usePathname() ? "secondary" : "ghost"}
+                // FIX: use the already-declared pathname variable instead of calling usePathname() again
+                variant={route.href === pathname ? "secondary" : "ghost"}
                 key={route.href}
                 onClick={() => onClick(route.href)}
                 className="w-full justify-start"
@@ -55,15 +61,13 @@ const Navigation = () => {
     );
   }
 
-  const pathName = usePathname();
-
   return (
     <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
       {routes.map((route) => (
         <NavButton
           key={route.href}
           label={route.label}
-          isActive={pathName === route.href}
+          isActive={pathname === route.href}
           href={route.href}
         ></NavButton>
       ))}

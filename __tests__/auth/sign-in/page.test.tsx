@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { PropsWithChildren, ReactNode } from "react";
 import Page from "../../../app/(auth)/sign-in/[[...sign-in]]/page";
 
 // Mock Clerk and Lucide components
 vi.mock("@clerk/nextjs", () => ({
-  ClerkLoaded: ({ children }: any) => <>{children}</>,
-  ClerkLoading: ({ children }: any) => <>{children}</>,
+  ClerkLoaded: ({ children }: PropsWithChildren) => <>{children}</>,
+  ClerkLoading: ({ children }: PropsWithChildren) => <>{children}</>,
   SignIn: () => <div>SignIn Component</div>,
 }));
 vi.mock("lucide-react", () => ({
@@ -13,7 +14,7 @@ vi.mock("lucide-react", () => ({
 }));
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: Record<string, unknown>) => <img {...props} />,
 }));
 
 describe("Page", () => {
@@ -26,7 +27,7 @@ describe("Page", () => {
   it("renders SignIn component", () => {
     render(<Page />);
     const signInComponents = screen.getAllByText("SignIn Component");
-    expect(signInComponents.length).toBeGreaterThan(0); // or > 0 if you expect more than one
+    expect(signInComponents.length).toBeGreaterThan(0);
   });
 
   it("renders logo image", () => {
